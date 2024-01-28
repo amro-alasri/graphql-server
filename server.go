@@ -1,13 +1,10 @@
 package main
 
 import (
-	"log"
-	"net/http"
 	"os"
 
-	"github.com/99designs/gqlgen/graphql/handler"
-	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/amro-alasri/graphQL-server/graph"
+	"github.com/amro-alasri/graphQL-server/controllers"
+	"github.com/gin-gonic/gin"
 )
 
 const defaultPort = "8080"
@@ -18,11 +15,21 @@ func main() {
 		port = defaultPort
 	}
 
-	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{}}))
+	server := gin.Default()
 
-	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	http.Handle("/query", srv)
+	server.GET("/", controllers.Playground())
+	server.POST("/query", controllers.GraphQLHandler())
+	server.Run(defaultPort)
 
-	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	// srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{}}))
+
+	// http.Handle("/", playground.Handler("GraphQL playground", "/query"))
+	// http.Handle("/query", srv)
+
+	// log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
+	// log.Fatal(http.ListenAndServe(":"+port, nil))
+
+	// http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	// 	w.Write([]byte("what is your name"))
+	// })
 }
