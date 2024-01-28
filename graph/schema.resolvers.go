@@ -6,28 +6,31 @@ package graph
 
 import (
 	"context"
-	"fmt"
 	"math/rand"
+	"strconv"
 
+	"github.com/amro-alasri/graphQL-server/database"
 	"github.com/amro-alasri/graphQL-server/graph/model"
 )
+
+var videoStore database.VideoStore = database.New()
 
 // CreateVideo is the resolver for the createVideo field.
 func (r *mutationResolver) CreateVideo(ctx context.Context, input model.NewVideo) (*model.Video, error) {
 	video := &model.Video{
-		ID:     fmt.Sprintf("T%d", rand.Int()),
+		ID:     strconv.Itoa(rand.Int()),
 		Title:  input.Title,
 		URL:    input.URL,
 		Author: &model.User{ID: input.UserID, Name: "user" + input.UserID},
 	}
-	r.videos = append(r.videos, video)
+	videoStore.Save(video)
 	return video, nil
 }
 
 // Videos is the resolver for the videos field.
 func (r *queryResolver) Videos(ctx context.Context) ([]*model.Video, error) {
-
-	return r.videos, nil
+	result := videoStore.FindAll()
+	return result, nil
 
 }
 
